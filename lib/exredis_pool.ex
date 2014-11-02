@@ -14,7 +14,7 @@ defmodule Exredis.Pool do
                      max_overflow: 100
                  ]
     children = [
-                 :poolboy.child_spec(:exredis_pool, pool_options, ["localhost",6379,0,"",:no_reconnect])
+                 :poolboy.child_spec(:exredis_pool, pool_options, ["localhost",6379,0,"",100])
              ]
     supervise(children, strategy: :one_for_one)
   end
