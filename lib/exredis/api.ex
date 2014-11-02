@@ -13,16 +13,19 @@ defmodule Exredis.Api.Helper do
       |> Enum.join("_") |> String.to_atom
     method = Enum.map cmd, fn(x) -> Atom.to_string(x) |> String.upcase end
     quote do
-      def unquote(cmd_name)(client, unquote_splicing(margs)) do
+
+      def unquote(cmd_name)(unquote_splicing(margs)) do
         f = unquote(fun)
         query_args = List.flatten [unquote_splicing(method)|[unquote_splicing(margs)]]
-        res = Exredis.query client, query_args
+	worker = :poolboy.checkout(:exredis_pool)
+	res = Exredis.query worker, query_args
+	:poolboy.checkin(:exredis_pool, worker)
         if f, do: f.(res), else: res
       end
 
-      def unquote(cmd_name)(unquote_splicing(margs)) do
-        unquote(cmd_name)(defaultclient, unquote_splicing(margs))
-      end
+#      def unquote(cmd_name)(unquote_splicing(margs)) do
+#        unquote(cmd_name)(defaultclient, unquote_splicing(margs))
+#      end
     end
   end
 end
@@ -40,14 +43,14 @@ defmodule Exredis.Api do
     end
   end
 
-  defp defaultclient do
-    pid = Process.whereis(:exredis_hapi_default_client)
-    if !pid do
-      pid = Exredis.start
-      Process.register pid, :exredis_hapi_default_client
-    end
-    pid
-  end
+#  defp defaultclient do
+#    pid = Process.whereis(:exredis_hapi_default_client)
+#    if !pid do
+#      pid = Exredis.start
+#      Process.register pid, :exredis_hapi_default_client
+#    end
+#    pid
+#  end
 
   defredis :append, [:key, :value], &int_reply/1
   defredis :auth, [:password]
