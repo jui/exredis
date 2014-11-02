@@ -29,7 +29,7 @@ defmodule Exredis.Pool do
   def query_pipe(command) when is_list(command)  do
     worker = :poolboy.checkout(:exredis_pool)
     ret = :eredis.qp(worker,command) |> elem 1
-    :poolboy.checkin(:exredis_pool, client)
+    :poolboy.checkin(:exredis_pool, worker)
     ret
   end   
 
