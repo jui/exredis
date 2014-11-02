@@ -30,7 +30,7 @@ defmodule Exredis.Pool do
   See more commands in official Redis documentation
   """
   @spec query(list) :: any
-  def query(command) when is_pid(client) and is_list(command), do:
+  def query(command) when is_list(command), do:
     client = :poolboy.checkout(:exredis_pool)
     ret = client |> :eredis.q(command) |> elem 1
     :poolboy.checkin(:exredis_pool, client)
@@ -45,8 +45,8 @@ defmodule Exredis.Pool do
                       ["LPUSH", :b, "2"]])
   ```
   """
-  @spec query_pipe(pid, list) :: any
-  def query_pipe(client, command) when is_pid(client) and is_list(command), do:
+  @spec query_pipe(list) :: any
+  def query_pipe(command) when is_list(command), do:
     client = :poolboy.checkout(:exredis_pool)
     ret = client |> :eredis.qp command
    :poolboy.checkin(:exredis_pool, client)
