@@ -31,8 +31,9 @@ defmodule Exredis.Pool do
   """
   @spec query(list) :: any
   def query(command) when is_list(command), do:
+
     client = :poolboy.checkout(:exredis_pool)
-    ret = client |> :eredis.q(command) |> elem 1
+    ret = :eredis.q(client, command) |> elem 1
     :poolboy.checkin(:exredis_pool, client)
     ret
 
